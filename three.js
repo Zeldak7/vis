@@ -46,19 +46,23 @@ function startViz() {
     var geometry = new THREE.IcosahedronGeometry(20, 3);
     var wireframe = new THREE.EdgesGeometry(geometry);
 
-    var geometry2 = new THREE.TorusGeometry(40, 20, 50);
+    var geometry2 = new THREE.TorusGeometry(90, 40, 50);
     var wireframe = new THREE.EdgesGeometry(geometry2);
 
 
-    var material2 = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false });
+    var material2 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false });
+    var color1 = "#008800";
+    var color2 = "#008800";
+
+
 
     var material = new THREE.ShaderMaterial({
         uniforms: {
             color1: {
-                value: new THREE.Color("#f00534")
+                value: new THREE.Color(color1)
             },
             color2: {
-                value: new THREE.Color("#0000FF")
+                value: new THREE.Color(color2)
             }
 
         },
@@ -96,9 +100,13 @@ function startViz() {
     ground1.position.set(0, 0, 0);
 
 
+    const line = new THREE.Line(geometry, material2);
+    scene.add(line);
 
-    group.add(ground1);
+
+    // group.add(ground1);
     group.add(ball);
+    group.add(ball2);
     scene.add(group);
 
     window.addEventListener('resize', () => {
@@ -131,6 +139,7 @@ function startViz() {
 
         ball2.rotation.x += 0.000;
         ball2.rotation.y += 0.000;
+        ball2.rotation.z += 0.01;
         ground1.rotation.z += 0.01;
 
 
@@ -148,9 +157,45 @@ function startViz() {
             var amp = 4;
             var time = window.performance.now();
             vertex.normalize();
-            var rf = 0.0001;
+            var rf = 0.00004;
             var distance = (offset + bassFr) + noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr;
             vertex.multiplyScalar(distance);
+            var lol = noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr;
+            console.log(lol);
+            if (lol > 5 || lol > -5) {
+
+                ball.material.uniforms.color2.value.set(0xff8800);
+                ball.material.uniforms.color1.value.set(0xff0000);
+
+
+            };
+
+
+
+
+
+
+            if (lol < 5 || lol < -5) {
+
+                console.log("istance2");
+
+                ball.material.uniforms.color2.value.set(0x3d85c6);
+                ball.material.uniforms.color1.value.set(0x3d85c6);
+
+
+                //ball.material.color.setHex(0x00ffff);
+
+
+
+            }
+
+
+
+
+
+
+
+
         });
         mesh.geometry.verticesNeedUpdate = true;
         mesh.geometry.normalsNeedUpdate = true;
