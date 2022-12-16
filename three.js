@@ -52,7 +52,7 @@ function startViz() {
 
     var material2 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false });
     var color1 = "#008800";
-    var color2 = "#008800";
+    var color2 = "#ffffff";
 
 
 
@@ -135,11 +135,11 @@ function startViz() {
         ball.rotation.x += 0.001;
         ball.rotation.y += 0.001;
         ball.rotation.z += 0.001;
-
+        var speed = 0.005;
 
         ball2.rotation.x += 0.000;
         ball2.rotation.y += 0.000;
-        ball2.rotation.z += 0.01;
+        ball2.rotation.z += 0.0002;
         ground1.rotation.z += 0.01;
 
 
@@ -160,13 +160,14 @@ function startViz() {
             var rf = 0.00004;
             var distance = (offset + bassFr) + noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr;
             vertex.multiplyScalar(distance);
-            var lol = noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr;
+            var lol = (noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr) * 1;
             console.log(lol);
-            if (lol > 5 || lol > -5) {
+            if (lol > 5) {
 
                 ball.material.uniforms.color2.value.set(0xff8800);
                 ball.material.uniforms.color1.value.set(0xff0000);
-
+                speed = 0.001;
+                ball2.rotation.z += 0.0001;
 
             };
 
@@ -175,12 +176,13 @@ function startViz() {
 
 
 
-            if (lol < 5 || lol < -5) {
+            if (lol < 0.5) {
 
                 console.log("istance2");
 
                 ball.material.uniforms.color2.value.set(0x3d85c6);
                 ball.material.uniforms.color1.value.set(0x3d85c6);
+                //ball2.rotation.z += 0.0005;
 
 
                 //ball.material.color.setHex(0x00ffff);
