@@ -46,7 +46,7 @@ function startViz() {
     var geometry = new THREE.IcosahedronGeometry(20, 3);
     var wireframe = new THREE.EdgesGeometry(geometry);
 
-    var geometry2 = new THREE.TorusGeometry(90, 40, 50);
+    var geometry2 = new THREE.TorusGeometry(90, 1, 2, 6);
     var wireframe = new THREE.EdgesGeometry(geometry2);
 
 
@@ -94,7 +94,20 @@ function startViz() {
     ball.position.set(0, 0, 0);
 
     var ball2 = new THREE.Mesh(geometry2, material);
-    ball2.position.set(0, 0, 0);
+    ball2.position.set(160, 0, 0);
+
+    var ball3 = new THREE.Mesh(geometry2, material);
+    ball3.position.set(-160, 0, 0);
+
+    var ball4 = new THREE.Mesh(geometry2, material);
+    ball4.position.set(180, 0, 0);
+
+    var ball5 = new THREE.Mesh(geometry2, material);
+    ball5.position.set(-180, 0, 0);
+
+
+
+
 
     var ground1 = new THREE.Mesh(geometry2, material);
     ground1.position.set(0, 0, 0);
@@ -107,6 +120,9 @@ function startViz() {
     // group.add(ground1);
     group.add(ball);
     group.add(ball2);
+    group.add(ball3);
+    group.add(ball4);
+    group.add(ball5);
     scene.add(group);
 
     window.addEventListener('resize', () => {
@@ -139,12 +155,19 @@ function startViz() {
 
         ball2.rotation.x += 0.000;
         ball2.rotation.y += 0.000;
-        ball2.rotation.z += 0.0002;
+        //ball2.rotation.z += 0.0002;
         ground1.rotation.z += 0.01;
 
 
+        //console.log(dataArray[dataArray.length - 1]);
+
+
         WarpBall(ball, modulate(Math.pow(lowerMaxFr, 0.8), 0, 1, 0, 8), modulate(upperAvgFr, 0, 1, 1, 7));
-        WarpBall(ball2, modulate(Math.pow(lowerMaxFr, 0.001), 0, 1, 0, 80), modulate(upperAvgFr, 0, 1, 1, 4));
+        //WarpBall(ball2, modulate(Math.pow(lowerMaxFr, 0.001), 0, 1, 0, 80), modulate(upperAvgFr, 0, 1, 1, 4));
+        // WarpBall(ball3, modulate(Math.pow(lowerMaxFr, 0.001), 0, 1, 0, 80), modulate(upperAvgFr, 0, 1, 1, 4));
+        //WarpBall(ball4, modulate(Math.pow(lowerMaxFr, 0.001), 0, 1, 0, 80), modulate(upperAvgFr, 0, 1, 1, 4));
+        //WarpBall(ball5, modulate(Math.pow(lowerMaxFr, 0.001), 0, 1, 0, 80), modulate(upperAvgFr, 0, 1, 1, 4));
+
 
 
         requestAnimationFrame(render);
@@ -160,14 +183,22 @@ function startViz() {
             var rf = 0.00004;
             var distance = (offset + bassFr) + noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr;
             vertex.multiplyScalar(distance);
-            var lol = (noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr) * 1;
-            console.log(lol);
-            if (lol > 5) {
+            //var lol = (noise.noise3D(vertex.x + time * rf * 6, vertex.y + time * rf * 7, vertex.z + time * rf * 8) * amp * treFr) * 1;
+            bass = (dataArray[0] + dataArray[1] + dataArray[2] + dataArray[3] + dataArray[4] + dataArray[5]) / 6;
+            console.log(bass);
+            //console.log(lowerMax);
+            if (bass > 240) {
 
                 ball.material.uniforms.color2.value.set(0xff8800);
                 ball.material.uniforms.color1.value.set(0xff0000);
                 speed = 0.001;
-                ball2.rotation.z += 0.0001;
+                ball2.rotation.z += 0.00005;
+                ball3.rotation.z -= 0.00005;
+                ball4.rotation.z += 0.00005;
+                ball5.rotation.z -= 0.00005;
+                //ball2.rotation.x += 0.00005;
+                //ball3.rotation.x -= 0.00005;
+
 
             };
 
@@ -176,9 +207,9 @@ function startViz() {
 
 
 
-            if (lol < 0.5) {
+            if (bass < 240) {
 
-                console.log("istance2");
+                //console.log("istance2");
 
                 ball.material.uniforms.color2.value.set(0x3d85c6);
                 ball.material.uniforms.color1.value.set(0x3d85c6);
