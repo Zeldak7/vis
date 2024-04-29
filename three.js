@@ -14,8 +14,6 @@ document.body.addEventListener('click', () => {
     }
 });
 
-
-
 // Play audio
 function playAudio() {
     audio.play();
@@ -56,28 +54,18 @@ function startVisualization() {
     document.body.appendChild(renderer.domElement);
 
     // Create geometries and materials
+    const geometry = new THREE.IcosahedronGeometry(20, 2);
+    const material = createShaderMaterial("#ffffff", "#0000ff"); // Changing colors to blue
+    const particleGeometry = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(bufferLength * 3); // Three components per particle (x, y, z)
+    particleGeometry.addAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMaterial = new THREE.PointsMaterial({ color: 0x0000ff, size: 1 }); // Changing particle color to blue
     
-    const geometry = new THREE.IcosahedronGeometry(20, 3);
-    const material = createShaderMaterial("#00ff00", "#ffffff");
-    const material2 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false });
-   
     // Create mesh objects
     const ball = createMesh(geometry, material);
-    //const ball2 = createMesh(new THREE.TorusGeometry(90, 1, 2, 6), material);
-    //const ground1 = createMesh(new THREE.TorusGeometry(90, 1, 2, 6), material);
-  // Create particle geometry and set up attributes
-const particleGeometry = new THREE.BufferGeometry();
-const particlePositions = new Float32Array(bufferLength * 3); // Three components per particle (x, y, z)
-particleGeometry.addAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-
-// Create particle material
-const particleMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
-
-// Create particle system
-const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-group.add(particleSystem);
-
-    // Add objects to scene
+    const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+    ball.position.set(-1, 0, 0)
+    group.add(particleSystem);
     group.add(ball);
     scene.add(group);
 
@@ -101,26 +89,23 @@ group.add(particleSystem);
     // Render function
     function render() {
         analyser.getByteFrequencyData(dataArray);
-    updateVisualizations(dataArray, ball);
-    updateParticles(dataArray); // Update particle positions
-    requestAnimationFrame(render);
-    renderer.render(scene, camera);
-    };
-
+        updateVisualizations(dataArray, ball);
+        updateParticles(dataArray); // Update particle positions
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
 
     render();
-};
+}
 
 // Update visualizations based on audio data
-function updateVisualizations(dataArray, ball, ball2) {
+function updateVisualizations(dataArray, ball) {
     const bass = calculateBass(dataArray);
-    const treble = calculateTreble(dataArray);
 
-    // Example: Rotate the balls based on bass and treble levels
+    // Example: Rotate the ball based on bass level
     const rotationSpeed = mapRange(bass, 0, 255, 0.001, 0.01);
     ball.rotation.x += rotationSpeed;
     ball.rotation.y += rotationSpeed;
-   // ball2.rotation.z += mapRange(treble, 0, 255, -0.01, 0.01);
 
     // Example: Scale the ball based on bass intensity
     const scaleValue = mapRange(bass, 0, 255, 0.5, 2); // Scale between 0.5 and 2
@@ -128,7 +113,7 @@ function updateVisualizations(dataArray, ball, ball2) {
 
     // Interpolate colors based on bass intensity
     const color1 = new THREE.Color(0xffffff); // White color
-    const color2 = new THREE.Color(0xff0000); // Red color
+    const color2 = new THREE.Color(0x0000ff); // Blue color
     const bassInterpolation = mapRange(bass, 0, 255, 0, 1); // Map bass to interpolation range [0, 1]
     const interpolatedColor = color1.clone().lerp(color2, bassInterpolation); // Interpolate between color1 and color2 based on bass intensity
     ball.material.uniforms.color2.value.copy(interpolatedColor); // Apply interpolated color to ball
@@ -167,12 +152,8 @@ function createMesh(geometry, material) {
 
 // Calculate bass from audio data
 function calculateBass(dataArray) {
-    return (dataArray[0] + dataArray[1] + dataArray[2] + dataArray[3] + dataArray[4] + dataArray[5]) / 6;
-}
-
-function calculateTreble(dataArray) {
-    const upperHalfArray = dataArray.slice(dataArray.length / 2 - 1, dataArray.length - 1);
-    return avg(upperHalfArray);
+    const bassArray = dataArray.slice(0, dataArray.length / 4); // Considering only the lower frequencies
+    return avg(bassArray);
 }
 
 // Map a value from one range to another
