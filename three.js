@@ -7,11 +7,11 @@ let isPlaying = false;
 
 // Toggle play/pause on body click
 document.body.addEventListener('click', () => {
-    if (isPlaying) {
-        pauseAudio();
-    } else {
+    if (!isPlaying) {
         playAudio();
-    }
+        startVisualization();
+    } 
+
 });
 
 // Play audio
@@ -64,7 +64,7 @@ function startVisualization() {
     // Create mesh objects
     const ball = createMesh(geometry, material);
     const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-    ball.position.set(-1, 0, 0)
+    ball.position.set(-1, 3,0)
     group.add(particleSystem);
     group.add(ball);
     scene.add(group);
@@ -78,11 +78,23 @@ function startVisualization() {
 
     function updateParticles(dataArray) {
         const positions = particleSystem.geometry.attributes.position.array;
+        const bufferLength = analyser.frequencyBinCount;
+        const lineLength = 600; // Length of the line
+        const spacing = lineLength / (bufferLength - 1); // Adjust spacing between particles
+    
         for (let i = 0; i < bufferLength; i++) {
-            positions[i * 3] = (i / bufferLength) * 1000 - 500; // X position
-            positions[i * 3 + 1] = mapRange(dataArray[i], 0, 255, -100, 100); // Y position (based on audio data)
-            positions[i * 3 + 2] = 0; // Z position
+            // Calculate target x position based on index and spacing
+            const targetX = i * spacing - (lineLength / 2);
+            // Calculate target y position based on audio data
+            const targetY = mapRange(dataArray[i], 0, 255, -100, 100);
+    
+            // Smoothly interpolate current position towards target position
+            positions[i * 3] += (targetX - positions[i * 3]) * 0.1; // Adjust the factor (0.1) for smoother or faster movement
+            positions[i * 3 + 1] += (targetY - positions[i * 3 + 1]) * 0.1;
+            // Z position remains 0
+            positions[i * 3 + 2] = 0;
         }
+    
         particleSystem.geometry.attributes.position.needsUpdate = true;
     }
 
@@ -167,5 +179,3 @@ function avg(arr) {
     return total / arr.length;
 }
 
-// Start the visualization
-startVisualization();
